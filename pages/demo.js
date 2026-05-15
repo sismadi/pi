@@ -2,6 +2,6 @@ pages.demo = [
     {
         section: 'titleHero',
         title: 'Demos',
-        description: 'Deskripsi halaman demo.'
+        description: 'Deskripsi halaman demos.'
     }
 ];
