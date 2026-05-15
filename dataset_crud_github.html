@@ -1,0 +1,344 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); font-size: 14px; color: var(--color-text-primary); }
+.wrap { padding: 1rem 0; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+label { font-size: 12px; color: var(--color-text-secondary); min-width: 80px; }
+input, select, textarea { font-family: var(--font-mono); font-size: 13px; }
+input[type=password], input[type=text] { width: 100%; padding: 6px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); }
+select { padding: 6px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); }
+textarea { width: 100%; padding: 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); resize: vertical; }
+button { padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+button:hover { background: var(--color-background-tertiary); }
+button.primary { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+button.danger { background: var(--color-background-danger); color: var(--color-text-danger); border-color: var(--color-border-danger); }
+button.success { background: var(--color-background-success); color: var(--color-text-success); border-color: var(--color-border-success); }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); font-weight: 500; }
+.badge-info { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-success { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-danger { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.log { font-family: var(--font-mono); font-size: 12px; padding: 8px 12px; border-radius: var(--border-radius-md); background: var(--color-background-tertiary); color: var(--color-text-secondary); border-left: 3px solid var(--color-border-secondary); min-height: 32px; margin-top: 8px; white-space: pre-wrap; }
+.log.ok { border-color: #1D9E75; color: var(--color-text-success); }
+.log.err { border-color: #E24B4A; color: var(--color-text-danger); }
+.section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.file-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.file-chip { padding: 4px 10px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); font-size: 12px; cursor: pointer; background: var(--color-background-secondary); color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+.file-chip.active { border-color: var(--color-border-info); color: var(--color-text-info); background: var(--color-background-info); }
+.file-chip .del { color: var(--color-text-danger); font-size: 13px; line-height: 1; }
+.tab-bar { display: flex; gap: 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1rem; }
+.tab { padding: 6px 14px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); }
+.tab.active { color: var(--color-text-info); border-bottom-color: var(--color-border-info); }
+hr { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 12px 0; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">Dataset CRUD via GitHub API</h2>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('config')" id="tab-config"><i class="ti ti-settings" aria-hidden="true"></i> Config</div>
+    <div class="tab" onclick="switchTab('files')" id="tab-files"><i class="ti ti-files" aria-hidden="true"></i> Files</div>
+    <div class="tab" onclick="switchTab('editor')" id="tab-editor"><i class="ti ti-edit" aria-hidden="true"></i> Editor</div>
+  </div>
+
+  <!-- CONFIG TAB -->
+  <div id="pane-config">
+    <div class="card">
+      <div class="section-title"><i class="ti ti-brand-github" aria-hidden="true"></i> GitHub connection</div>
+      <div class="row"><label>Token</label><input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" /></div>
+      <div class="row"><label>Owner</label><input type="text" id="gh-owner" placeholder="sismadi" /></div>
+      <div class="row"><label>Repo</label><input type="text" id="gh-repo" placeholder="wawan.sismadi.com" /></div>
+      <div class="row"><label>Branch</label><input type="text" id="gh-branch" placeholder="main" value="main" /></div>
+      <div class="row"><label>Path</label><input type="text" id="gh-path" placeholder="pages" value="pages" /></div>
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <button class="primary" onclick="saveConfig()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Simpan</button>
+        <button onclick="testConnection()"><i class="ti ti-plug" aria-hidden="true"></i> Test koneksi</button>
+      </div>
+      <div class="log" id="log-config">—</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-list" aria-hidden="true"></i> Manifest <code>pages/index.js</code></div>
+      <div id="manifest-display" class="file-list"><span style="color:var(--color-text-secondary);font-size:12px;">Belum dimuat</span></div>
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button onclick="fetchManifest()"><i class="ti ti-refresh" aria-hidden="true"></i> Load manifest</button>
+      </div>
+      <div class="log" id="log-manifest">—</div>
+    </div>
+  </div>
+
+  <!-- FILES TAB -->
+  <div id="pane-files" style="display:none;">
+    <div class="card">
+      <div class="section-title"><i class="ti ti-folder-open" aria-hidden="true"></i> Daftar file di <code>/pages</code></div>
+      <div id="file-list-area" class="file-list"><span style="color:var(--color-text-secondary);font-size:12px;">Klik "Refresh" untuk memuat</span></div>
+      <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button onclick="fetchFileList()"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+      </div>
+      <div class="log" id="log-files">—</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-plus" aria-hidden="true"></i> Tambah halaman baru</div>
+      <div class="row">
+        <label>Nama key</label>
+        <input type="text" id="new-key" placeholder="expertise" style="width:180px;" />
+        <button class="success" onclick="createNewPage()"><i class="ti ti-plus" aria-hidden="true"></i> Buat</button>
+      </div>
+      <div class="log" id="log-create">—</div>
+    </div>
+  </div>
+
+  <!-- EDITOR TAB -->
+  <div id="pane-editor" style="display:none;">
+    <div class="card">
+      <div class="section-title"><i class="ti ti-edit" aria-hidden="true"></i> Edit file</div>
+      <div class="row">
+        <label>File</label>
+        <select id="editor-select" onchange="loadFileToEditor(this.value)" style="flex:1;"></select>
+        <button onclick="fetchFileList(true)"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+      </div>
+      <textarea id="editor-area" rows="16" spellcheck="false" placeholder="Pilih file untuk memuat konten..."></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+        <button class="primary" onclick="commitFile()"><i class="ti ti-cloud-upload" aria-hidden="true"></i> Commit ke GitHub</button>
+        <button onclick="downloadCurrent()"><i class="ti ti-download" aria-hidden="true"></i> Download</button>
+        <button class="danger" onclick="deleteFile()"><i class="ti ti-trash" aria-hidden="true"></i> Hapus file</button>
+      </div>
+      <div class="log" id="log-editor">—</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-list" aria-hidden="true"></i> Commit message</div>
+      <div class="row">
+        <input type="text" id="commit-msg" placeholder="Update pages/home.js" style="flex:1;" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const cfg = {};
+const fileShas = {};
+let activeTab = 'config';
+let manifestKeys = [];
+let fileList = [];
+
+function switchTab(t) {
+  ['config','files','editor'].forEach(x => {
+    $('pane-'+x).style.display = x===t ? '' : 'none';
+    $('tab-'+x).classList.toggle('active', x===t);
+  });
+  activeTab = t;
+}
+
+function saveConfig() {
+  cfg.token = $('gh-token').value.trim();
+  cfg.owner = $('gh-owner').value.trim();
+  cfg.repo = $('gh-repo').value.trim();
+  cfg.branch = $('gh-branch').value.trim() || 'main';
+  cfg.path = $('gh-path').value.trim().replace(/\/$/, '') || 'pages';
+  if (!cfg.token || !cfg.owner || !cfg.repo) {
+    setLog('log-config', 'Token, owner, dan repo wajib diisi.', 'err'); return;
+  }
+  setLog('log-config', 'Config tersimpan.', 'ok');
+}
+
+function setLog(id, msg, type='') {
+  const el = $(id);
+  el.textContent = msg;
+  el.className = 'log' + (type ? ' '+type : '');
+}
+
+async function ghFetch(endpoint, method='GET', body=null) {
+  const headers = {
+    'Authorization': 'token ' + cfg.token,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`https://api.github.com${endpoint}`, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || res.status);
+  return data;
+}
+
+async function testConnection() {
+  saveConfig();
+  setLog('log-config', 'Menghubungkan...', '');
+  try {
+    const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}`);
+    setLog('log-config', `✓ Terhubung: ${data.full_name} (${data.private ? 'private' : 'public'})`, 'ok');
+  } catch(e) { setLog('log-config', '✗ ' + e.message, 'err'); }
+}
+
+async function fetchManifest() {
+  saveConfig();
+  setLog('log-manifest', 'Memuat manifest...', '');
+  try {
+    const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/index.js?ref=${cfg.branch}`);
+    const content = atob(data.content.replace(/\n/g,''));
+    fileShas['index.js'] = data.sha;
+    const match = content.match(/pageFiles\s*=\s*(\[[\s\S]*?\])/);
+    if (!match) throw new Error('Format pageFiles tidak ditemukan');
+    manifestKeys = JSON.parse(match[1]);
+    renderManifest();
+    setLog('log-manifest', `✓ ${manifestKeys.length} halaman dimuat.`, 'ok');
+  } catch(e) { setLog('log-manifest', '✗ ' + e.message, 'err'); }
+}
+
+function renderManifest() {
+  const el = $('manifest-display');
+  el.innerHTML = manifestKeys.map(k =>
+    `<span class="file-chip active"><i class="ti ti-file" aria-hidden="true"></i>${k}.js</span>`
+  ).join('');
+}
+
+async function fetchFileList(forEditor=false) {
+  saveConfig();
+  const logId = forEditor ? 'log-editor' : 'log-files';
+  setLog(logId, 'Memuat daftar file...', '');
+  try {
+    const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}?ref=${cfg.branch}`);
+    fileList = data.filter(f => f.name.endsWith('.js') && f.name !== 'index.js');
+    fileList.forEach(f => { fileShas[f.name] = f.sha; });
+
+    if (!forEditor) {
+      renderFileList();
+      setLog('log-files', `✓ ${fileList.length} file ditemukan.`, 'ok');
+    } else {
+      renderEditorSelect();
+      setLog('log-editor', `✓ ${fileList.length} file dimuat.`, 'ok');
+    }
+  } catch(e) { setLog(logId, '✗ ' + e.message, 'err'); }
+}
+
+function renderFileList() {
+  const el = $('file-list-area');
+  if (!fileList.length) { el.innerHTML = '<span style="color:var(--color-text-secondary);font-size:12px;">Tidak ada file</span>'; return; }
+  el.innerHTML = fileList.map(f =>
+    `<span class="file-chip">
+      <i class="ti ti-file-code" aria-hidden="true"></i>${f.name}
+      <span class="del" onclick="confirmDelete('${f.name}')" title="Hapus">×</span>
+    </span>`
+  ).join('');
+}
+
+function renderEditorSelect() {
+  const sel = $('editor-select');
+  sel.innerHTML = '<option value="">— pilih file —</option>' +
+    fileList.map(f => `<option value="${f.name}">${f.name}</option>`).join('');
+}
+
+async function loadFileToEditor(filename) {
+  if (!filename) return;
+  setLog('log-editor', 'Memuat ' + filename + '...', '');
+  $('commit-msg').value = 'Update ' + cfg.path + '/' + filename;
+  try {
+    const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/${filename}?ref=${cfg.branch}`);
+    fileShas[filename] = data.sha;
+    $('editor-area').value = atob(data.content.replace(/\n/g,''));
+    setLog('log-editor', `✓ ${filename} dimuat (${data.size} bytes)`, 'ok');
+  } catch(e) { setLog('log-editor', '✗ ' + e.message, 'err'); }
+}
+
+function makePageContent(key) {
+  return `pages.${key} = [\n    {\n        section: 'titleHero',\n        title: '${key.charAt(0).toUpperCase()+key.slice(1)}',\n        description: 'Deskripsi halaman ${key}.'\n    }\n];\n`;
+}
+
+function makeManifestContent(keys) {
+  return `const pageFiles = ${JSON.stringify(keys, null, 4)};\n`;
+}
+
+async function createNewPage() {
+  saveConfig();
+  const key = $('new-key').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if (!key) { setLog('log-create', 'Nama key tidak valid.', 'err'); return; }
+  if (manifestKeys.includes(key)) { setLog('log-create', `"${key}" sudah ada di manifest.`, 'err'); return; }
+  setLog('log-create', `Membuat ${key}.js...`, '');
+  try {
+    const content = btoa(makePageContent(key));
+    await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/${key}.js`, 'PUT', {
+      message: `feat: tambah halaman ${key}`,
+      content,
+      branch: cfg.branch
+    });
+    manifestKeys.push(key);
+    await updateManifest(`feat: tambah ${key} ke manifest`);
+    $('new-key').value = '';
+    setLog('log-create', `✓ pages/${key}.js dibuat & manifest diperbarui.`, 'ok');
+    await fetchFileList();
+    renderManifest();
+  } catch(e) { setLog('log-create', '✗ ' + e.message, 'err'); }
+}
+
+async function updateManifest(msg) {
+  const content = btoa(makeManifestContent(manifestKeys));
+  const body = { message: msg, content, branch: cfg.branch };
+  if (fileShas['index.js']) body.sha = fileShas['index.js'];
+  const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/index.js`, 'PUT', body);
+  fileShas['index.js'] = data.content.sha;
+}
+
+async function commitFile() {
+  const filename = $('editor-select').value;
+  if (!filename) { setLog('log-editor', 'Pilih file terlebih dahulu.', 'err'); return; }
+  const content = $('editor-area').value;
+  const msg = $('commit-msg').value || 'Update ' + filename;
+  setLog('log-editor', 'Meng-commit...', '');
+  try {
+    const body = {
+      message: msg,
+      content: btoa(unescape(encodeURIComponent(content))),
+      branch: cfg.branch
+    };
+    if (fileShas[filename]) body.sha = fileShas[filename];
+    const data = await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/${filename}`, 'PUT', body);
+    fileShas[filename] = data.content.sha;
+    setLog('log-editor', `✓ Committed: ${filename}`, 'ok');
+  } catch(e) { setLog('log-editor', '✗ ' + e.message, 'err'); }
+}
+
+function downloadCurrent() {
+  const filename = $('editor-select').value || 'dataset.js';
+  const content = $('editor-area').value;
+  if (!content) { setLog('log-editor', 'Editor kosong.', 'err'); return; }
+  const blob = new Blob([content], { type: 'application/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+async function deleteFile() {
+  const filename = $('editor-select').value;
+  if (!filename) { setLog('log-editor', 'Pilih file terlebih dahulu.', 'err'); return; }
+  if (!confirm(`Hapus ${filename}? Ini juga akan menghapusnya dari manifest.`)) return;
+  setLog('log-editor', 'Menghapus...', '');
+  try {
+    await ghFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}/${filename}`, 'DELETE', {
+      message: `chore: hapus ${filename}`,
+      sha: fileShas[filename],
+      branch: cfg.branch
+    });
+    const key = filename.replace('.js','');
+    manifestKeys = manifestKeys.filter(k => k !== key);
+    await updateManifest(`chore: hapus ${key} dari manifest`);
+    delete fileShas[filename];
+    $('editor-area').value = '';
+    setLog('log-editor', `✓ ${filename} dihapus & manifest diperbarui.`, 'ok');
+    await fetchFileList(true);
+    renderManifest();
+  } catch(e) { setLog('log-editor', '✗ ' + e.message, 'err'); }
+}
+
+function confirmDelete(filename) {
+  if (!confirm(`Hapus ${filename}?`)) return;
+  $('editor-select').value = filename;
+  switchTab('editor');
+  loadFileToEditor(filename).then(() => deleteFile());
+}
+</script>
