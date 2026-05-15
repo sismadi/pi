@@ -1,0 +1,15 @@
+<script>const PIN = "__sandi__";</script>
+
+<input type="password" id="pin" placeholder="Masukkan PIN">
+<button onclick="login()">Masuk</button>
+
+<script>
+function login() {
+  if (document.getElementById('pin').value === PIN) {
+    alert('Berhasil!');
+    // redirect atau tampilkan konten
+  } else {
+    alert('PIN salah');
+  }
+}
+</script>
