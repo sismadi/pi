@@ -197,8 +197,18 @@ function renderManifest() {
   ).join('');
 }
 
+
+
 async function fetchFileList(forEditor=false) {
   saveConfig();
+
+    if (!cfg.token || !cfg.owner || !cfg.repo) {
+    const logId = forEditor ? 'log-editor' : 'log-files';
+    setLog(logId, '✗ Isi Config terlebih dahulu.', 'err');
+    switchTab('config');
+    return;
+  }
+  
   const logId = forEditor ? 'log-editor' : 'log-files';
   setLog(logId, 'Memuat daftar file...', '');
   try {
