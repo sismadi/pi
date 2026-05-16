@@ -3,5 +3,6 @@ const pageFiles = [
     "riset",
     "edukasi",
     "industri",
-    "demo"
+    "demo",
+    "tes"
 ];
