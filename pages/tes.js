@@ -1,7 +1,7 @@
 pages.tes = [
     {
         section: 'titleHero',
-        title: 'Tes',
+        title: 'Testt',
         description: 'Deskripsi halaman tes.'
     }
 ];
